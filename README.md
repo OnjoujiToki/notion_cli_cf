@@ -25,7 +25,9 @@ A command-line tool that fetches problems from Codeforces based on specified tag
 
 ### 2. Set Up Your Notion Database
 
-Create a new database in Notion with the following columns:
+You can duplicate [this page](https://fantastic-potassium-767.notion.site/33db213308c44b84b5a05e5298e56888?v=79904238e5b74b4bb1c412c062821724&pvs=25) to start, remember to give your integration permission.
+
+Or you can create a new database in Notion with the following columns:
 
 - **Problem** (Title)
 - **Tag** (Multi-select)
