@@ -2,6 +2,10 @@
 
 A command-line tool that fetches problems from Codeforces based on specified tags and difficulty levels, and stores them in a Notion database. This tool also allows users to filter out solved problems based on their Codeforces handle and provides functionalities to list, archive, and delete problems in the Notion database.
 
+
+
+![Usage](image.jpg)
+
 ## Features
 
 - **Fetch and Store Problems**: Fetch problems from Codeforces and store them in a Notion database with metadata such as tags, difficulty, solve count, and problem link.
@@ -58,3 +62,6 @@ DATABASE_ID=your_database_id
 chmod +x cli.js
 ./cli.js
 ```
+
+
+
