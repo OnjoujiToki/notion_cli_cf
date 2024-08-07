@@ -2,8 +2,13 @@
 
 import 'dotenv/config';
 import inquirer from 'inquirer';
-import { fetchProblems } from './codeforces.js';
-import { storeProblemsInNotion } from './notion.js';
+import { fetchProblems, fetchSolvedProblems } from './codeforces.js';
+import {
+  storeProblemsInNotion,
+  listProblems,
+  archiveProblem,
+  deleteAllProblems,
+} from './notion.js';
 
 async function main() {
   const { action } = await inquirer.prompt([
@@ -11,25 +16,67 @@ async function main() {
       type: 'list',
       name: 'action',
       message: 'Please select an option:',
-      choices: ['fetch and store problems', 'quit'],
+      choices: [
+        'fetch and store problems',
+        'list problems',
+        'archive problem',
+        'delete all problems',
+        'quit',
+      ],
     },
   ]);
 
   if (action === 'fetch and store problems') {
-    const { tags, minDifficulty, maxDifficulty } = await inquirer.prompt([
-      { type: 'input', name: 'tags', message: 'Tags (comma separated):' },
-      { type: 'number', name: 'minDifficulty', message: 'Min Difficulty:' },
-      { type: 'number', name: 'maxDifficulty', message: 'Max Difficulty:' },
-    ]);
+    const { handle, tags, minDifficulty, maxDifficulty, limit } =
+      await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'handle',
+          message: 'Enter your Codeforces handle:',
+        },
+        { type: 'input', name: 'tags', message: 'Tags (comma separated):' },
+        { type: 'number', name: 'minDifficulty', message: 'Min Difficulty:' },
+        { type: 'number', name: 'maxDifficulty', message: 'Max Difficulty:' },
+        {
+          type: 'number',
+          name: 'limit',
+          message: 'Limit the number of problems to fetch:',
+          default: 50,
+        },
+      ]);
 
-    const problems = await fetchProblems(
+    const solvedProblems = await fetchSolvedProblems(handle);
+    let problems = await fetchProblems(
       tags.split(',').map((tag) => tag.trim()),
       minDifficulty,
       maxDifficulty
     );
-    await storeProblemsInNotion(problems);
+
+    const unsolvedProblems = problems
+      .filter(
+        (problem) =>
+          !solvedProblems.includes(`${problem.contestId}-${problem.index}`)
+      )
+      .slice(0, limit);
+
+    await storeProblemsInNotion(unsolvedProblems);
 
     console.log('Problems fetched and stored in Notion successfully.');
+  } else if (action === 'list problems') {
+    await listProblems();
+  } else if (action === 'archive problem') {
+    const { problemId } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'problemId',
+        message: 'Enter the ID of the problem to archive:',
+      },
+    ]);
+    await archiveProblem(problemId);
+    console.log('Problem archived successfully.');
+  } else if (action === 'delete all problems') {
+    await deleteAllProblems();
+    console.log('All problems deleted successfully.');
   } else if (action === 'quit') {
     console.log('Goodbye!');
     process.exit(0);
