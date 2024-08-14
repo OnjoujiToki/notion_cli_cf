@@ -41,16 +41,20 @@ async function main() {
           type: 'number',
           name: 'limit',
           message: 'Limit the number of problems to fetch:',
-          default: 50,
+          default: 500,
         },
       ]);
 
     const solvedProblems = await fetchSolvedProblems(handle);
-    let problems = await fetchProblems(
-      tags.split(',').map((tag) => tag.trim()),
-      minDifficulty,
-      maxDifficulty
-    );
+
+    // Split the tags input, trim each tag, and filter out empty strings
+    const tagArray = tags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag !== '');
+
+    // Fetch the problems using the cleaned tags array
+    let problems = await fetchProblems(tagArray, minDifficulty, maxDifficulty);
 
     const unsolvedProblems = problems
       .filter(
